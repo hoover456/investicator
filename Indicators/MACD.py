@@ -16,3 +16,9 @@ class MACD(Indicator):
         self.macd[1, self.long:] = np.array(EMA(self.signal, self.macd[0, self.long:]).get())
         self.macd[1, 0:(self.long + self.signal)] = 0
         return self.macd
+
+    def getPrediction(self):
+        if(self.macd[0, -1] > self.macd[1, -1]):
+            return 'Price increase predicted'
+        else:
+            return 'Price decrease predicted'
