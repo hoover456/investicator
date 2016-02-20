@@ -22,3 +22,14 @@ class MACD(Indicator):
             return 'Price increase predicted'
         else:
             return 'Price decrease predicted'
+
+    def getAllPredictions(self):
+        predictions = np.empty([len(self.macd[0, ])])
+        for i in range (len(self.macd[0, ])):
+            if self.macd[0, i] > self.macd[1, i] and self.macd[0, i-1] < self.macd[1, i-1]:
+                predictions[i] = 1
+            elif self.macd[0, i] < self.macd[1, i] and self.macd[0, i-1] > self.macd[1, i-1]:
+                predictions[i] = -1
+            else:
+                predictions[i] = 0
+        return predictions
