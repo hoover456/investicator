@@ -38,5 +38,8 @@ class Stock:
     def getVolume(self):
         return np.array(self.data[:, 5], float)
 
+    def getAdjClose(self):
+        return np.array(self.data[:, 6], float)
+
     def getIndex(self):
         return self.index

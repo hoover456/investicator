@@ -1,13 +1,11 @@
 import numpy as np
+from abc import ABCMeta, abstractmethod
+
 
 class Indicator:
-    def __init__ (self):
-        self.data = []
-        pass
 
-    def get(self):
-        return self.data
-        raise NotImplementedError
+    @abstractmethod
+    def get(self): pass
 
-    def getPrediction(self):
-        raise NotImplementedError
+    @abstractmethod
+    def getPrediction(self): pass
