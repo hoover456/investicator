@@ -3,10 +3,10 @@ from Indicators.EMA import *
 
 class MACD(Indicator):
 
-    def __init__(self, short, long, sig, array):
-        self.short = short
-        self.long = long
-        self.signal = sig
+    def __init__(self, array, **kwargs):
+        self.short = kwargs.get('short', 14)
+        self.long = kwargs.get('long', 26)
+        self.signal = kwargs.get('signal', 9)
         self.source = array
         self.macd = np.empty([2, len(self.source)])
 

@@ -1,5 +1,6 @@
 from Stock import Stock
 from Indicators.MACD import *
+from Indicators.RSI import RSI
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 
@@ -10,7 +11,12 @@ m = mcd.get()
 d = stock.getDates('%Y-%m-%d')
 d = d[-30:]
 m = m[:, -30:]
+rsi = RSI(stock.getClose(), 14)
+r = rsi.get()
+for i in range(len(r)):
+    print(r[i])
 
+'''
 fig, ax= plt.subplots(2,1,sharex=False, sharey=False, gridspec_kw=dict(height_ratios=[3, 1]))
 ax[0].plot_date(d, stock.getClose()[-30:], 'b-')
 ax[1].plot(d,m[0, ], 'b-')
@@ -32,3 +38,4 @@ ax[0].grid(b=True)
 ax[1].grid(b=True)
 print('MACD: ', mcd.getPrediction())
 plt.show()
+'''
