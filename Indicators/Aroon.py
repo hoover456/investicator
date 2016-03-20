@@ -30,3 +30,14 @@ class Aroon(Indicator):
         r[1, ] = self.down
         r[2, ] = self.getOccilator()
         return r
+
+    def getAllPredictions(self):  # predicts based on aroon occilator
+        UP = 25
+        DOWN = -25
+        predictions = np.zeros(len(self.getOccilator()))
+        for i in range(len(predictions)):
+            if self.getOccilator()[i] >= UP:
+                predictions[i] = 1
+            elif self.getOccilator()[i] <= DOWN:
+                predictions[i] = -1
+        return predictions

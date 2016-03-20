@@ -6,6 +6,8 @@ class RSI(Indicator):
     def __init__(self, close, **kwargs):
         self.data = close
         self.length = kwargs.get('length', 14)
+        self.overbought = kwargs.get('overbought', 70)
+        self.oversold = kwargs.get('oversold', 30)
 
     def get(self):
         change = np.zeros(len(self.data))
@@ -32,3 +34,12 @@ class RSI(Indicator):
             avgLoss = (avgLoss * (self.length - 1) + loss[i]) / self.length
             rsi[i] = (100 - (100 / (1 + (avgGain / avgLoss))))
         return rsi
+
+    def getAllPredictions(self):
+        predictions = np.zeros(len(self.get()))
+        for i in range(len(predictions)):
+            if self.get()[i] <= self.oversold:
+                predictions[i] = 1
+            elif self.get()[i] >= self.overbought:
+                predictions[i] = -1
+        return predictions
