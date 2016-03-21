@@ -10,13 +10,13 @@ class Aroon(Indicator):
         self.down = None
 
     def getUp(self):
-        self.up = np.empty([len(self.data)])
+        self.up = np.zeros([len(self.data)])
         for i in range(self.length, len(self.data)):
             self.up[i] = (self.length - np.argmax(self.data[i-self.length:i])) / self.length * 100
         return self.up
 
     def getDown(self):
-        self.down = np.empty([len(self.data)])
+        self.down = np.zeros([len(self.data)])
         for i in range(self.length, len(self.data)):
             self.down[i] = (self.length - np.argmin(self.data[i-self.length:i])) / self.length * 100
         return self.down

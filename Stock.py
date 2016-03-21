@@ -10,8 +10,12 @@ class Stock:
         self.index = index
         url = 'http://real-chart.finance.yahoo.com/table.csv?s=' + index
         path = 'data/' + index + '.csv'
-        with urllib.request.urlopen(url) as response, open(path, 'wb') as out_file:
-            shutil.copyfileobj(response, out_file)
+        try:
+            with urllib.request.urlopen(url) as response, open(path, 'wb') as out_file:
+                shutil.copyfileobj(response, out_file)
+        except Exception: None
+        # print('Could not establish connection - using old file')
+
         self.data = np.array(np.genfromtxt(path, str, delimiter=','))
         self.data = self.data[1:, ]
         self.data = self.data[::-1]
