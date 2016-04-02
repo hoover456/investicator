@@ -3,11 +3,15 @@ import numpy as np
 import matplotlib.dates
 import urllib.request
 import shutil
+import os
 
 class Stock:
 
     def __init__(self, index):
         self.index = index
+        try:
+            os.mkdir('data')
+        except Exception: None
         url = 'http://real-chart.finance.yahoo.com/table.csv?s=' + index
         path = 'data/' + index + '.csv'
         try:

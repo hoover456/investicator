@@ -1,4 +1,4 @@
-from Indicator import *
+from Indicators.Indicator import *
 
 
 class Aroon(Indicator):
