@@ -18,8 +18,12 @@ l = p.Results.length;
 
 % Calculate up, down, and occilator from data
 for i = [l+1:length(data)]
-  up(i) = (l - find(data(i-l:i) == max(data(i-l:i)))) / l * 100;
-  down(i) = (l - find(data(i-l:i) == min(data(i-l:i)))) / l * 100;
+  k = find(data(i-l:i) == max(data(i-l:i)));
+  k = k(1);
+  up(i) = (l - k) / l * 100;
+  k = find(data(i-l:i) == min(data(i-l:i)));
+  k = k(1);
+  down(i) = (l - k) / l * 100;
   occilator = up - down;
 end
 

@@ -23,4 +23,5 @@ volume = table2array(data(:,6))';
 adjClose = table2array(data(:,7))';
 
 [macd, sig, macd_predictions] = MACD(close);
-[arron, arron_predictions] = arron(close);
+[aroon, aroon_predictions] = aroon(close);
+[RSI, RSI_predictions] = RSI(close);
