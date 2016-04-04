@@ -19,6 +19,7 @@ SIGNAL = p.Results.signal;
 
 % Calculate MACD
 macd = tsmovavg(data, 'e', SHORT) - tsmovavg(data, 'e', LONG);
+macd(isnan(macd))=0;
 signal = tsmovavg(macd, 'e', SIGNAL);
 
 predictions = zeros(1,length(macd));
