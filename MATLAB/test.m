@@ -1,8 +1,25 @@
 SIMULATION_LENGTH = 365;
-symbols = {'AAPL' 'GOOGL' 'NUGT' 'DUST' 'TSLA' 'AMZN' 'SPXL' 'MIDU' 'TNA' 'SOXL' 'RETL' 'GASL' 'MATL' 'ERX' 'FAS' 'CURE' 'DRN' 'SOXL'}
+% symbols = {'AAPL' 'GOOGL' 'NUGT' 'DUST' 'TSLA' 'AMZN' 'SPXL' 'MIDU' 'TNA' 'SOXL' 'RETL' 'GASL' 'ERX' 'FAS' 'CURE' 'DRN' 'SOXL'};
+list = input('File Name: ')
+symbols = dataread('file', list, '%s', 'delimiter', '\n');
+xlswrite('Suggestions.xls',{'Symbol' 'Suggestion'});
 
+step = 0;
+steps = length(symbols);
+h = waitbar(step/steps, 'Beginning');
 for r = [1:length(symbols)]
-  fprintf('%s: %5.2f%%\n', symbols{r}, main(symbols{r}))
+  step = r;
+  waitbar(step/steps, h, strcat('Processing:  ',symbols{r}));
+  sugg{1} = symbols{r};
+  sugg{2} = main(symbols{r});
+  if sugg{2} > 0.4
+    sugg{2} = 'Buy';
+  elseif sugg{2} < -0.4
+    sugg{2} = 'Sell';
+  else
+    sugg{2} = 'Wait';
+  end
+  xlswrite('Suggestions.xls',sugg,strcat('A',int2str(r+1),':B',int2str(r+1)));
 end
 
 
