@@ -1,4 +1,4 @@
-function [suggestion] = main(symbol, varargin)
+function [suggestion, close] = main(symbol, varargin)
 p = inputParser;
 addRequired(p, 'symbol');
 addOptional(p, 'RSI_LENGTH', 14);
@@ -11,7 +11,7 @@ AROON_LENGTH = p.Results.AROON_LENGTH;
 MACD_LONG = p.Results.MACD_LONG;
 MACD_SHORT = floor(MACD_LONG / 1.8);
 MACD_SIG = floor(MACD_SHORT / 1.5);
-
+close = 0;
 try
   data = webread(strcat('http://real-chart.finance.yahoo.com/table.csv?s=',symbol));
   if height(data) >= 365
@@ -74,7 +74,8 @@ try
   [null, null, macd_predictions] = MACD(close, mOpt, floor(mOpt / 1.8), floor(floor(mOpt / 1.8) / 1.5));
   suggestion = (RSI_predictions(end) + aroon_predictions(end) + macd_predictions(end)) / 3;
 catch exception
-  suggestion = 0;
+  fprintf('Could Not Retrieve Data for %s, please remove from list\n', symbol)
+  suggestion = -2;
 end
 
 

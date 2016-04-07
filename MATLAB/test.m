@@ -2,26 +2,39 @@ SIMULATION_LENGTH = 365;
 % symbols = {'AAPL' 'GOOGL' 'NUGT' 'DUST' 'TSLA' 'AMZN' 'SPXL' 'MIDU' 'TNA' 'SOXL' 'RETL' 'GASL' 'ERX' 'FAS' 'CURE' 'DRN' 'SOXL'};
 list = input('File Name: ')
 symbols = dataread('file', list, '%s', 'delimiter', '\n');
-xlswrite('Suggestions.xls',{'Symbol' 'Suggestion'});
-
+xlswrite('Suggestions.xls',{'Symbol' 'Suggestion' 'Yesterdays Change' '30 Day Change' '90 Day Change'});
+tic;
 step = 0;
 steps = length(symbols);
 h = waitbar(step/steps, 'Beginning');
+fid = fopen('newData.txt', 'at');
 for r = [1:length(symbols)]
   step = r;
-  waitbar(step/steps, h, strcat('Processing:  ',symbols{r}));
+  waitbar(step/steps, h, strcat('Processing: ', symbols{r},' Elapsed Time: ', num2str(toc,'%.2f'), ' seconds'));
   sugg{1} = symbols{r};
-  sugg{2} = main(symbols{r});
-  if sugg{2} > 0.4
-    sugg{2} = 'Buy';
-  elseif sugg{2} < -0.4
-    sugg{2} = 'Sell';
-  else
-    sugg{2} = 'Wait';
+  [suggestion, close] = main(symbols{r});
+  if suggestion ~= -2
+    fprintf(fid, '%s\n', symbols{r});
+    sugg{2} = suggestion;
+    sugg{3} = close(end) - close(length(close)-1);
+    if length(close) > 30
+    sugg{4} = close(end) - close(length(close)-30);
+    end
+    if length(close) > 90
+    sugg{5} = close(end) - close(length(close)-90);
+    end
+    if sugg{2} > 0.4
+      sugg{2} = 'Buy';
+    elseif sugg{2} < -0.4
+      sugg{2} = 'Sell';
+    else
+      sugg{2} = 'Wait';
+    end
+    xlswrite('Suggestions.xls',sugg,strcat('A',int2str(r+1),':E',int2str(r+1)));
   end
-  xlswrite('Suggestions.xls',sugg,strcat('A',int2str(r+1),':B',int2str(r+1)));
 end
-
+waitbar(1, h, 'DONE!');
+fclose(fid);
 
 % main('AAPL')
 % % rets = cell(25,30,40);
