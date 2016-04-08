@@ -30,6 +30,7 @@ try
   if close(end) == 0
     suggestion = -2;
   else
+
     actuals = zeros(1,SIMULATION_LENGTH);
     avgLength = floor(SIMULATION_LENGTH/20);
     for i = [avgLength+1:SIMULATION_LENGTH]
@@ -42,15 +43,12 @@ try
       end
     end
 
-    % steps =
-
-
     r = zeros(1,21);
     parfor RSI_LENGTH = [10:20]
       [null, RSI_predictions] = RSI(close, RSI_LENGTH);
       r(RSI_LENGTH) = length(find(RSI_predictions == actuals));
     end
-    [M,I] = max(r);
+    [RSI_accuracy,I] = max(r);
     rOpt = I;
 
     r = zeros(1,30);
@@ -58,7 +56,7 @@ try
       [null, null, arron, aroon_predictions] = aroon(close, AROON_LENGTH);
       r(AROON_LENGTH) = length(find(aroon_predictions == actuals));
     end
-    [M,I] = max(r);
+    [aroon_accuracy,I] = max(r);
     aOpt = I;
 
     r = zeros(1,39);
@@ -68,13 +66,28 @@ try
       [null, null, macd_predictions] = MACD(close, MACD_LONG, MACD_SHORT, MACD_SIG);
       r(MACD_LONG) = length(find(macd_predictions == actuals));
     end
-    [M,I] = max(r);
+    [macd_accuracy,I] = max(r);
     mOpt = I;
 
     [null, RSI_predictions] = RSI(close, rOpt);
     [null, null, null, aroon_predictions] = aroon(close, aOpt);
     [null, null, macd_predictions] = MACD(close, mOpt, floor(mOpt / 1.8), floor(floor(mOpt / 1.8) / 1.5));
-    suggestion = (RSI_predictions(end) + aroon_predictions(end) + macd_predictions(end)) / 3;
+    [null, obv_predictions] = OBV(close, volume);
+    suggestion = (RSI_predictions(end) + aroon_predictions(end) + macd_predictions(end) + obv_predictions(end)) / 4;
+
+    obv_accuracy = sum(obv_predictions == actuals);
+
+    parameters =  {symbol RSI_LENGTH AROON_LENGTH MACD_LONG};
+    accuracies =  {symbol RSI_accuracy aroon_accuracy macd_accuracy obv_accuracy};
+    fid1 = fopen('parameters.csv', 'at');
+    fid2 = fopen('accuracies.csv', 'at');
+    fprintf(fid1, '%s,', parameters{1});
+    fprintf(fid2, '%s,', accuracies{1});
+    fclose(fid1);
+    fclose(fid2);
+    parameters(2:end);
+    dlmwrite('parameters.csv',parameters(2:end), '-append');
+    dlmwrite('accuracies.csv',accuracies(2:end), '-append');
   end
 catch exception
   %fprintf('Could Not Retrieve Data for %s, please remove from list\n', symbol)
