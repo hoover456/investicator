@@ -33,7 +33,7 @@ try
 
     actuals = zeros(1,SIMULATION_LENGTH);
     avgLength = floor(SIMULATION_LENGTH/20);
-    for i = [avgLength+1:SIMULATION_LENGTH]
+    parfor i = [avgLength+1:SIMULATION_LENGTH]
       if mean(close(i-avgLength:i)) > close(i)
         actuals(i) = 1;
       elseif mean(close(i-avgLength:i)) < close(i)
@@ -43,50 +43,44 @@ try
       end
     end
 
-    r = zeros(1,21);
-    parfor RSI_LENGTH = [10:20]
-      [null, RSI_predictions] = RSI(close, RSI_LENGTH);
-      r(RSI_LENGTH) = length(find(RSI_predictions == actuals));
-    end
-    [RSI_accuracy,I] = max(r);
-    rOpt = I;
+    % r = zeros(1,21);
+    % parfor RSI_LENGTH = [10:20]
+    %   [null, RSI_predictions] = RSI(close, RSI_LENGTH);
+    %   r(RSI_LENGTH) = length(find(RSI_predictions == actuals));
+    % end
+    % [RSI_accuracy,I] = max(r);
+    % rOpt = I;
+    %
+    % r = zeros(1,30);
+    % parfor AROON_LENGTH = [15:30]
+    %   [null, null, arron, aroon_predictions] = aroon(close, AROON_LENGTH);
+    %   r(AROON_LENGTH) = length(find(aroon_predictions == actuals));
+    % end
+    % [aroon_accuracy,I] = max(r);
+    % aOpt = I;
+    %
+    % r = zeros(1,39);
+    % parfor MACD_LONG = [18:32]
+    %   MACD_SHORT = floor(MACD_LONG / 1.8);
+    %   MACD_SIG = floor(MACD_SHORT / 1.5);
+    %   [null, null, macd_predictions] = MACD(close, MACD_LONG, MACD_SHORT, MACD_SIG);
+    %   r(MACD_LONG) = length(find(macd_predictions == actuals));
+    % end
+    % [macd_accuracy,I] = max(r);
+    % mOpt = I;
 
-    r = zeros(1,30);
-    parfor AROON_LENGTH = [15:30]
-      [null, null, arron, aroon_predictions] = aroon(close, AROON_LENGTH);
-      r(AROON_LENGTH) = length(find(aroon_predictions == actuals));
-    end
-    [aroon_accuracy,I] = max(r);
-    aOpt = I;
-
-    r = zeros(1,39);
-    parfor MACD_LONG = [18:32]
-      MACD_SHORT = floor(MACD_LONG / 1.8);
-      MACD_SIG = floor(MACD_SHORT / 1.5);
-      [null, null, macd_predictions] = MACD(close, MACD_LONG, MACD_SHORT, MACD_SIG);
-      r(MACD_LONG) = length(find(macd_predictions == actuals));
-    end
-    [macd_accuracy,I] = max(r);
-    mOpt = I;
-
-    [null, RSI_predictions] = RSI(close, rOpt);
-    [null, null, null, aroon_predictions] = aroon(close, aOpt);
-    [null, null, macd_predictions] = MACD(close, mOpt, floor(mOpt / 1.8), floor(floor(mOpt / 1.8) / 1.5));
+    [null, RSI_predictions] = RSI(close, 14);
+    [null, null, null, aroon_predictions] = aroon(close, 20);
+    [null, null, macd_predictions] = MACD(close, 26, floor(26 / 1.8), floor(floor(26 / 1.8) / 1.5));
     [null, obv_predictions] = OBV(close, volume);
     suggestion = (RSI_predictions(end) + aroon_predictions(end) + macd_predictions(end) + obv_predictions(end)) / 4;
 
     obv_accuracy = sum(obv_predictions == actuals);
 
-    parameters =  {symbol RSI_LENGTH AROON_LENGTH MACD_LONG};
     accuracies =  {symbol RSI_accuracy aroon_accuracy macd_accuracy obv_accuracy};
-    fid1 = fopen('parameters.csv', 'at');
     fid2 = fopen('accuracies.csv', 'at');
-    fprintf(fid1, '%s,', parameters{1});
     fprintf(fid2, '%s,', accuracies{1});
-    fclose(fid1);
-    fclose(fid2);
-    parameters(2:end);
-    dlmwrite('parameters.csv',parameters(2:end), '-append');
+    fclose(fid2)
     dlmwrite('accuracies.csv',accuracies(2:end), '-append');
   end
 catch exception

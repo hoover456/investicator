@@ -6,11 +6,8 @@ tic;
 step = 0;
 steps = length(symbols);
 h = waitbar(step/steps, 'Beginning');
-fid1 = fopen('parameters.csv', 'wt');
 fid2 = fopen('accuracies.csv', 'wt');
-fprintf(fid1, '%s', 'symbol, RSI_LENGTH, AROON_LENGTH, MACD_LONG\n');
 fprintf(fid2, '%s', 'symbol, RSI_accuracy, aroon_accuracy, macd_accuracy, obv_accuracy\n');
-fclose(fid1);
 fclose(fid2);
 for r = [1:length(symbols)]
   step = r;
