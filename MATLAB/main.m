@@ -46,7 +46,7 @@ try
 
 
     r = zeros(1,21);
-    parfor RSI_LENGTH = [7:21]
+    parfor RSI_LENGTH = [10:20]
       [null, RSI_predictions] = RSI(close, RSI_LENGTH);
       r(RSI_LENGTH) = length(find(RSI_predictions == actuals));
     end
@@ -54,7 +54,7 @@ try
     rOpt = I;
 
     r = zeros(1,30);
-    parfor AROON_LENGTH = [10:30]
+    parfor AROON_LENGTH = [15:30]
       [null, null, arron, aroon_predictions] = aroon(close, AROON_LENGTH);
       r(AROON_LENGTH) = length(find(aroon_predictions == actuals));
     end
@@ -62,7 +62,7 @@ try
     aOpt = I;
 
     r = zeros(1,39);
-    parfor MACD_LONG = [13:39]
+    parfor MACD_LONG = [18:32]
       MACD_SHORT = floor(MACD_LONG / 1.8);
       MACD_SIG = floor(MACD_SHORT / 1.5);
       [null, null, macd_predictions] = MACD(close, MACD_LONG, MACD_SHORT, MACD_SIG);
@@ -77,7 +77,7 @@ try
     suggestion = (RSI_predictions(end) + aroon_predictions(end) + macd_predictions(end)) / 3;
   end
 catch exception
-  fprintf('Could Not Retrieve Data for %s, please remove from list\n', symbol)
+  %fprintf('Could Not Retrieve Data for %s, please remove from list\n', symbol)
   suggestion = -2;
 end
 

@@ -10,7 +10,8 @@ h = waitbar(step/steps, 'Beginning');
 fid = fopen('newData.txt', 'at');
 for r = [1:length(symbols)]
   step = r;
-  waitbar(step/steps, h, strcat('Processing: ', symbols{r},' Elapsed Time: ', num2str(toc,'%.2f'), ' seconds'));
+  timePerStep = toc/step;
+  waitbar(step/steps, h, strcat(symbols{r},' Elapsed: ', num2str(toc/60,'%.2f'), ' Mins ', ' Remaining: ', num2str((timePerStep * (steps - step))/60, '%.2f'), ' Mins'));
   sugg{1} = symbols{r};
   [suggestion, close] = main(symbols{r});
   if suggestion ~= -2
