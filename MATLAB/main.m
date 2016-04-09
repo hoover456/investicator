@@ -14,12 +14,6 @@ MACD_SIG = floor(MACD_SHORT / 1.5);
 close = 0;
 try
   data = webread(strcat('http://real-chart.finance.yahoo.com/table.csv?s=',symbol));
-catch exception
-  disp(exception)
-  fprintf('Could Not Retrieve Data for %s, please remove from list\n', symbol)
-  suggestion = -2;
-  pause
-end
   if height(data) >= 365
     SIMULATION_LENGTH = 365;
   else
@@ -48,7 +42,6 @@ end
         actuals(i) = 0;
       end
     end
-
     % r = zeros(1,21);
     % parfor RSI_LENGTH = [10:20]
     %   [null, RSI_predictions] = RSI(close, RSI_LENGTH);
@@ -94,7 +87,12 @@ end
     fclose(fid2);
     dlmwrite('accuracies.csv',accuracies(2:end), '-append');
   end
-
+catch exception
+  disp(exception)
+  fprintf('Could Not Retrieve Data for %s, please remove from list\n', symbol)
+  suggestion = -2;
+  pause
+end
 
 
 
