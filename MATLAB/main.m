@@ -14,6 +14,12 @@ MACD_SIG = floor(MACD_SHORT / 1.5);
 close = 0;
 try
   data = webread(strcat('http://real-chart.finance.yahoo.com/table.csv?s=',symbol));
+catch exception
+  disp(exception)
+  fprintf('Could Not Retrieve Data for %s, please remove from list\n', symbol)
+  suggestion = -2;
+  pause
+end
   if height(data) >= 365
     SIMULATION_LENGTH = 365;
   else
@@ -73,20 +79,22 @@ try
     [null, null, null, aroon_predictions] = aroon(close, 20);
     [null, null, macd_predictions] = MACD(close, 26, floor(26 / 1.8), floor(floor(26 / 1.8) / 1.5));
     [null, obv_predictions] = OBV(close, volume);
-    suggestion = (RSI_predictions(end) + aroon_predictions(end) + macd_predictions(end) + obv_predictions(end)) / 4;
+    [null, null, stoch_predictions] = stoch(close);
+    suggestion = (RSI_predictions(end) + aroon_predictions(end) + macd_predictions(end) + obv_predictions(end) + stoch_predictions(end)) / 5;
 
+    rsi_accuracy = sum(RSI_predictions == actuals);
+    aroon_accuracy = sum(aroon_predictions == actuals);
+    macd_accuracy = sum(macd_predictions == actuals);
     obv_accuracy = sum(obv_predictions == actuals);
+    stoch_accuracy = sum(stoch_predictions == actuals);
 
-    accuracies =  {symbol RSI_accuracy aroon_accuracy macd_accuracy obv_accuracy};
+    accuracies =  {symbol rsi_accuracy aroon_accuracy macd_accuracy obv_accuracy stoch_accuracy};
     fid2 = fopen('accuracies.csv', 'at');
     fprintf(fid2, '%s,', accuracies{1});
-    fclose(fid2)
+    fclose(fid2);
     dlmwrite('accuracies.csv',accuracies(2:end), '-append');
   end
-catch exception
-  %fprintf('Could Not Retrieve Data for %s, please remove from list\n', symbol)
-  suggestion = -2;
-end
+
 
 
 

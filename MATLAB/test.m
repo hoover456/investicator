@@ -7,9 +7,11 @@ step = 0;
 steps = length(symbols);
 h = waitbar(step/steps, 'Beginning');
 fid2 = fopen('accuracies.csv', 'wt');
-fprintf(fid2, '%s', 'symbol, RSI_accuracy, aroon_accuracy, macd_accuracy, obv_accuracy\n');
+fprintf(fid2, '%s', 'symbol, RSI_accuracy, aroon_accuracy, macd_accuracy, obv_accuracy, stoch_accuracy,');
 fclose(fid2);
-for r = [1:length(symbols)]
+dlmwrite('accuracies.csv',['_'], '-append');
+
+for r = [1:50]
   step = r;
   timePerStep = toc/step;
   waitbar(step/steps, h, strcat(symbols{r},' Elapsed: ', num2str(toc/60,'%.2f'), ' Mins ', ' Remaining: ', num2str((timePerStep * (steps - step))/60, '%.2f'), ' Mins'));
@@ -24,9 +26,9 @@ for r = [1:length(symbols)]
     if length(close) > 90
     sugg{5} = close(end) - close(length(close)-90);
     end
-    if sugg{2} > 0.4
+    if sugg{2} > 0.5
       sugg{2} = 'Buy';
-    elseif sugg{2} < -0.4
+    elseif sugg{2} < -0.5
       sugg{2} = 'Sell';
     else
       sugg{2} = 'Wait';
