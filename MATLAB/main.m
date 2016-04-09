@@ -1,4 +1,4 @@
-function [suggestion, close] = main(symbol, varargin)
+function [suggestion, close, accuracies] = main(symbol, varargin)
 p = inputParser;
 addRequired(p, 'symbol');
 addOptional(p, 'RSI_LENGTH', 14);
@@ -80,8 +80,9 @@ try
     macd_accuracy = sum(macd_predictions == actuals);
     obv_accuracy = sum(obv_predictions == actuals);
     stoch_accuracy = sum(stoch_predictions == actuals);
+    mean_accuracy = (rsi_accuracy + aroon_accuracy + macd_accuracy + obv_accuracy + stoch_accuracy) / 5;
 
-    accuracies =  {symbol rsi_accuracy aroon_accuracy macd_accuracy obv_accuracy stoch_accuracy};
+    accuracies =  {symbol rsi_accuracy aroon_accuracy macd_accuracy obv_accuracy stoch_accuracy mean_accuracy};
     fid2 = fopen('accuracies.csv', 'at');
     fprintf(fid2, '%s,', accuracies{1});
     fclose(fid2);
