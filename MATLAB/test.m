@@ -11,7 +11,7 @@ fprintf(fid2, '%s', 'symbol, RSI_accuracy, aroon_accuracy, macd_accuracy, obv_ac
 fclose(fid2);
 dlmwrite('accuracies.csv',['_'], '-append');
 
-for r = [1:50]
+for r = [1:length(symbols)]
   step = r;
   timePerStep = toc/step;
   waitbar(step/steps, h, strcat(symbols{r},' Elapsed: ', num2str(toc/60,'%.2f'), ' Mins ', ' Remaining: ', num2str((timePerStep * (steps - step))/60, '%.2f'), ' Mins'));
