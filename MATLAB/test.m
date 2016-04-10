@@ -1,7 +1,11 @@
 SIMULATION_LENGTH = 365;
 list = input('File Name: ')
 symbols = dataread('file', list, '%s', 'delimiter', '\n');
-xlswrite('Suggestions.xls',{'Symbol' 'Suggestion' 'Yesterdays Change' '30 Day Change' '90 Day Change' 'RSI_accuracy' 'predictions_accuracy'});
+fid = fopen('suggestions.csv', 'wt');
+header = {'Symbol' 'Suggestion' 'Yesterdays Change' '30 Day Change' '90 Day Change' 'RSI_accuracy' 'aroon_accuracy' 'macd_accuracy' 'obv_accuracy' 'stoch_accuracy' 'mean_accuracy'};
+fprintf(fid, '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s', header{:});
+fclose(fid);
+dlmwrite('suggestions.csv',['_'], '-append');
 tic;
 step = 0;
 steps = length(symbols);
@@ -35,7 +39,11 @@ for r = [1:length(symbols )]
     end
     % sugg{end:length(accuracies) + end} = accuracies{:}
     sugg = [sugg accuracies(end)];
-    xlswrite('Suggestions.xls',sugg,strcat('A',int2str(r+1),':K',int2str(r+1)));
+    fid = fopen('suggestions.csv', 'at');
+    fprintf(fid, '%s,%s,', sugg{1:2});
+    fclose(fid);
+    dlmwrite('suggestions.csv', sugg(3:end), '-append');
+    % xlswrite('Suggestions.xls',sugg,strcat('A',int2str(r+1),':K',int2str(r+1)));
     clear sugg;
   end
 end

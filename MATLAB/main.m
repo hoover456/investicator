@@ -94,7 +94,6 @@ catch exception
   disp(exception)
   fprintf('Could Not Retrieve Data for %s, please remove from list\n', symbol)
   suggestion = -2;
-  pause
 end
 
 
