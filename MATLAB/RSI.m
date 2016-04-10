@@ -10,7 +10,7 @@ function [RSI, predictions] = RSI(close, varargin)
   close = p.Results.close;
   len = p.Results.length;
   for i = [2:length(close)]
-    change(i) = close(i-1) - close(i);
+    change(i) = close(i) - close(i-1);
   end
 
   gain = zeros(1,length(change));

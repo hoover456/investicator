@@ -32,49 +32,63 @@ try
   else
 
     actuals = zeros(1,SIMULATION_LENGTH);
-    avgLength = floor(SIMULATION_LENGTH/20);
-    parfor i = [avgLength+1:SIMULATION_LENGTH]
-      if mean(close(i-avgLength:i)) > close(i)
+    % lens = floor(SIMULATION_LENGTH/40);
+    for i = [1:SIMULATION_LENGTH-10]
+      if close(i+10) > close(i)
         actuals(i) = 1;
-      elseif mean(close(i-avgLength:i)) < close(i)
+      elseif close(i+10) < close(i)
         actuals(i) = -1;
       else
         actuals(i) = 0;
       end
     end
-    % r = zeros(1,21);
-    % parfor RSI_LENGTH = [10:20]
+    %
+    % r = zeros(1,20);
+    % parfor RSI_LENGTH = [5:20]
     %   [null, RSI_predictions] = RSI(close, RSI_LENGTH);
-    %   r(RSI_LENGTH) = length(find(RSI_predictions == actuals));
+    %   r(RSI_LENGTH) = sum(RSI_predictions == actuals);
     % end
+    % [a,b] = max(r);
+    % fprintf('%s, r %2.0f, len %2.0f\n', symbol, a, b)
     % [RSI_accuracy,I] = max(r);
     % rOpt = I;
-    %
+
     % r = zeros(1,30);
-    % parfor AROON_LENGTH = [15:30]
+    % parfor AROON_LENGTH = [10:30]
     %   [null, null, arron, aroon_predictions] = aroon(close, AROON_LENGTH);
-    %   r(AROON_LENGTH) = length(find(aroon_predictions == actuals));
+    %   r(AROON_LENGTH) = sum(aroon_predictions == actuals);
     % end
+    % [a,b] = max(r);
+    % % fprintf('%s, a %2.0f, len %2.0f\n', symbol, a, b)
     % [aroon_accuracy,I] = max(r);
     % aOpt = I;
     %
-    % r = zeros(1,39);
-    % parfor MACD_LONG = [18:32]
+    % r = zeros(1,32);
+    % parfor MACD_LONG = [15:32]
     %   MACD_SHORT = floor(MACD_LONG / 1.8);
     %   MACD_SIG = floor(MACD_SHORT / 1.5);
     %   [null, null, macd_predictions] = MACD(close, MACD_LONG, MACD_SHORT, MACD_SIG);
-    %   r(MACD_LONG) = length(find(macd_predictions == actuals));
+    %   r(MACD_LONG) = sum(macd_predictions == actuals);
     % end
+    % [a,b] = max(r);
+    % % fprintf('%s, m %2.0f, len %2.0f\n', symbol, a, b)
     % [macd_accuracy,I] = max(r);
     % mOpt = I;
+    rOpt = 14;
+    mOpt = 26;
+    aOpt = 20;
 
-    [null, RSI_predictions] = RSI(close, 14);
-    [null, null, null, aroon_predictions] = aroon(close, 20);
-    [null, null, macd_predictions] = MACD(close, 26, floor(26 / 1.8), floor(floor(26 / 1.8) / 1.5));
+    [null, RSI_predictions] = RSI(close, rOpt);
+    [null, null, null, aroon_predictions] = aroon(close, aOpt);
+    [null, null, macd_predictions] = MACD(close, mOpt, floor(mOpt / 1.8), floor(floor(mOpt / 1.8) / 1.5));
     [null, obv_predictions] = OBV(close, volume);
     [null, null, stoch_predictions] = stoch(close);
     suggestion = (RSI_predictions(end) + aroon_predictions(end) + macd_predictions(end) + obv_predictions(end) + stoch_predictions(end)) / 5;
-    suggestions = (RSI_predictions + aroon_predictions + macd_predictions + obv_predictions + stoch_predictions) ./ 5;
+    suggestions = zeros(1,length(actuals));
+    for i = [1:length(actuals)]
+      suggestions(i) = (RSI_predictions(i) + aroon_predictions(i) + macd_predictions(i) + obv_predictions(i) + stoch_predictions(i)) / 5;
+    end
+    % suggestions = (RSI_predictions + aroon_predictions + macd_predictions + obv_predictions + stoch_predictions) ./ 5;
 
     rsi_accuracy = sum(RSI_predictions == actuals);
     aroon_accuracy = sum(aroon_predictions == actuals);
@@ -82,8 +96,14 @@ try
     obv_accuracy = sum(obv_predictions == actuals);
     stoch_accuracy = sum(stoch_predictions == actuals);
     mean_accuracy = (rsi_accuracy + aroon_accuracy + macd_accuracy + obv_accuracy + stoch_accuracy) / 5;
-    predictions_accuracy = sum(suggestions == actuals);
-
+    predictions_accuracy = 0;
+    for i =[1:length(suggestions)]
+      if (suggestions(i) > 0.5 && actuals(i) > 0) || (suggestions(i) < -0.5 && actuals(i) < 0)
+        predictions_accuracy = predictions_accuracy + 1;
+      % else
+      %   predictions_accuracy = predictions_accuracy - 1;
+      end
+    end
     accuracies =  {symbol rsi_accuracy aroon_accuracy macd_accuracy obv_accuracy stoch_accuracy mean_accuracy predictions_accuracy};
     fid2 = fopen('accuracies.csv', 'at');
     fprintf(fid2, '%s,', accuracies{1});
