@@ -1,7 +1,7 @@
 SIMULATION_LENGTH = 365;
 list = input('File Name: ')
 symbols = dataread('file', list, '%s', 'delimiter', '\n');
-xlswrite('Suggestions.xls',{'Symbol' 'Suggestion' 'Yesterdays Change' '30 Day Change' '90 Day Change' 'RSI_accuracy' 'aroon_accuracy' 'macd_accuracy' 'obv_accuracy' 'stoch_accuracy' 'mean_accuracy'});
+xlswrite('Suggestions.xls',{'Symbol' 'Suggestion' 'Yesterdays Change' '30 Day Change' '90 Day Change' 'RSI_accuracy' 'predictions_accuracy'});
 tic;
 step = 0;
 steps = length(symbols);
@@ -34,7 +34,7 @@ for r = [1:length(symbols )]
       sugg{2} = 'Wait';
     end
     % sugg{end:length(accuracies) + end} = accuracies{:}
-    sugg = [sugg accuracies(2:end)];
+    sugg = [sugg accuracies(end)];
     xlswrite('Suggestions.xls',sugg,strcat('A',int2str(r+1),':K',int2str(r+1)));
     clear sugg;
   end

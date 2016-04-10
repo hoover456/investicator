@@ -74,6 +74,7 @@ try
     [null, obv_predictions] = OBV(close, volume);
     [null, null, stoch_predictions] = stoch(close);
     suggestion = (RSI_predictions(end) + aroon_predictions(end) + macd_predictions(end) + obv_predictions(end) + stoch_predictions(end)) / 5;
+    suggestions = (RSI_predictions + aroon_predictions + macd_predictions + obv_predictions + stoch_predictions) ./ 5;
 
     rsi_accuracy = sum(RSI_predictions == actuals);
     aroon_accuracy = sum(aroon_predictions == actuals);
@@ -81,8 +82,9 @@ try
     obv_accuracy = sum(obv_predictions == actuals);
     stoch_accuracy = sum(stoch_predictions == actuals);
     mean_accuracy = (rsi_accuracy + aroon_accuracy + macd_accuracy + obv_accuracy + stoch_accuracy) / 5;
+    predictions_accuracy = sum(suggestions == actuals);
 
-    accuracies =  {symbol rsi_accuracy aroon_accuracy macd_accuracy obv_accuracy stoch_accuracy mean_accuracy};
+    accuracies =  {symbol rsi_accuracy aroon_accuracy macd_accuracy obv_accuracy stoch_accuracy mean_accuracy predictions_accuracy};
     fid2 = fopen('accuracies.csv', 'at');
     fprintf(fid2, '%s,', accuracies{1});
     fclose(fid2);
