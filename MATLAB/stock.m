@@ -7,7 +7,7 @@ classdef stock
     suggestion
     inaccuracy = 0
     sharesOwned = 0
-    purchasePrice
+    purchasePrice = 0
   end
   methods
     function revenue = sell(stock, dayIndex)

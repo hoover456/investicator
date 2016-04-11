@@ -4,10 +4,10 @@ function backtest(listName)
   symbols = dataread('file', listName, '%s', 'delimiter', '\n'); % Read in list of symbols
 
   % Get 2 years data for each symbol
-  steps = length(symbols);
+  steps = 500;
   h = waitbar(0/steps, 'GETTING DATA');
-  for i = [1:length(symbols)]
-    waitbar(i/steps, h);
+  for i = [1:500]
+    waitbar(i/steps, h, strcat(num2str(i), '/', num2str(steps)));
     if exist(strcat('Data/',symbols{i}, '.csv'), 'file') == 2
       data = dlmread(strcat('Data/',symbols{i}, '.csv'));
       close = data(1,:);
@@ -38,6 +38,7 @@ function backtest(listName)
 while i < length(market)
   if length(market(i).symbol) == 0
     market = [market(1:i-1) market(i+1:end)];
+    i = i - 1;
   end
   i = i + 1;
 end
@@ -57,7 +58,8 @@ for n = [365:730]
   end
 
   for j = [1:length(market)]
-      if (market(j).sharesOwned > 0 && market(j).suggestion == -1) %|| (market(j).sharesOwned > 0 && abs(market(j).closes(n) - market(j).purchasePrice) / market(j).purchasePrice >=0.1)
+      if (market(j).sharesOwned > 0 && market(j).suggestion == -1) || market(i).purchasePrice > 0 && (market(i).closes(n) / market(i).purchasePrice) >= 1.03
+        %|| (market(j).sharesOwned > 0 && abs(market(j).closes(n) - market(j).purchasePrice) / market(j).purchasePrice >=0.1)
         fprintf('SELLING %.0f SHARES OF %s FOR $%.2f PER SHARE\n', market(j).sharesOwned, market(j).symbol, market(j).closes(n))
         funds = funds + market(j).sell(n);
         market(j).sharesOwned = 0;
@@ -78,7 +80,7 @@ for n = [365:730]
 
   for i = [1:length(market)]
     if funds > net / 5
-      if market(i).suggestion == 1
+      if market(i).suggestion == 1 & market(i).sharesOwned == 0
         market(i).purchasePrice = market(i).closes(n);
         market(i).sharesOwned = market(i).sharesOwned + floor((funds / 5) / market(i).purchasePrice);
         fprintf('BUYING %.0f SHARES OF %s AT $%5.2f PER SHARE\n', (floor((funds / 5) / market(i).purchasePrice)), market(i).symbol, market(i).purchasePrice)
