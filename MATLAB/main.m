@@ -1,32 +1,19 @@
-function [suggestion, close, accuracies] = main(symbol, varargin)
+function [suggestion, inaccuracy] = main(symbol, close, volume, SIMULATION_LENGTH, varargin)
 p = inputParser;
 addRequired(p, 'symbol');
+addRequired(p, 'close');
+addRequired(p, 'volume');
+addRequired(p, 'SIMULATION_LENGTH');
 addOptional(p, 'RSI_LENGTH', 14);
 addOptional(p, 'AROON_LENGTH', 20);
 addOptional(p, 'MACD_LONG', 26);
 
-p.parse(symbol,varargin{:});
+p.parse(symbol, close, volume, SIMULATION_LENGTH, varargin{:});
 RSI_LENGTH = p.Results.RSI_LENGTH;
 AROON_LENGTH = p.Results.AROON_LENGTH;
 MACD_LONG = p.Results.MACD_LONG;
 MACD_SHORT = floor(MACD_LONG / 1.8);
 MACD_SIG = floor(MACD_SHORT / 1.5);
-close = 0;
-try
-  data = webread(strcat('http://real-chart.finance.yahoo.com/table.csv?s=',symbol));
-  if height(data) >= 365
-    SIMULATION_LENGTH = 365;
-  else
-    SIMULATION_LENGTH = height(data);
-  end
-  data = data(1:SIMULATION_LENGTH,:);
-  dates = fliplr(datenum(table2array(data(:,1)))');
-  open = fliplr(table2array(data(:,2))');
-  high = fliplr(table2array(data(:,3))');
-  low = fliplr(table2array(data(:,4))');
-  close = fliplr(table2array(data(:,5))');
-  volume = fliplr(table2array(data(:,6))');
-  adjClose = fliplr(table2array(data(:,7))');
   if close(end) == 0
     suggestion = -2;
   else
@@ -83,38 +70,25 @@ try
     [null, null, macd_predictions] = MACD(close, mOpt, floor(mOpt / 1.8), floor(floor(mOpt / 1.8) / 1.5));
     [null, obv_predictions] = OBV(close, volume);
     [null, null, stoch_predictions] = stoch(close);
-    suggestion = (RSI_predictions(end) + aroon_predictions(end) + macd_predictions(end) + obv_predictions(end) + stoch_predictions(end)) / 5;
-    suggestions = zeros(1,length(actuals));
+    trend = (aroon_predictions(end) + obv_predictions(end) + stoch_predictions(end));
+    trends = zeros(1,length(actuals));
+    inaccuracy = 0;
     for i = [1:length(actuals)]
-      suggestions(i) = (RSI_predictions(i) + aroon_predictions(i) + macd_predictions(i) + obv_predictions(i) + stoch_predictions(i)) / 5;
-    end
-    % suggestions = (RSI_predictions + aroon_predictions + macd_predictions + obv_predictions + stoch_predictions) ./ 5;
-
-    rsi_accuracy = sum(RSI_predictions == actuals);
-    aroon_accuracy = sum(aroon_predictions == actuals);
-    macd_accuracy = sum(macd_predictions == actuals);
-    obv_accuracy = sum(obv_predictions == actuals);
-    stoch_accuracy = sum(stoch_predictions == actuals);
-    mean_accuracy = (rsi_accuracy + aroon_accuracy + macd_accuracy + obv_accuracy + stoch_accuracy) / 5;
-    predictions_accuracy = 0;
-    for i =[1:length(suggestions)]
-      if (suggestions(i) > 0.5 && actuals(i) > 0) || (suggestions(i) < -0.5 && actuals(i) < 0)
-        predictions_accuracy = predictions_accuracy + 1;
-      % else
-      %   predictions_accuracy = predictions_accuracy - 1;
+      trends(i) = (aroon_predictions(end) + obv_predictions(end) + stoch_predictions(end));
+      if (trends(i) > 2 && actuals(i) == -1) || (trends(i) < -2 && actuals(i) == 1)
+        inaccuracy = inaccuracy + 1;
       end
     end
-    accuracies =  {symbol rsi_accuracy aroon_accuracy macd_accuracy obv_accuracy stoch_accuracy mean_accuracy predictions_accuracy};
-    fid2 = fopen('accuracies.csv', 'at');
-    fprintf(fid2, '%s,', accuracies{1});
-    fclose(fid2);
-    dlmwrite('accuracies.csv',accuracies(2:end), '-append');
+    % suggestions = (RSI_predictions + aroon_predictions + macd_predictions + obv_predictions + stoch_predictions) ./ 5;
+    trigger = RSI_predictions(end) + macd_predictions(end);
+    if trend > 2 && trigger >= 1
+      suggestion = 1;
+    elseif trend < -2 && trigger <= -1
+      suggestion = -1;
+    else
+      suggestion = 0;
+    end
   end
-catch exception
-  disp(exception)
-  fprintf('Could Not Retrieve Data for %s, please remove from list\n', symbol)
-  suggestion = -2;
-end
 
 
 
