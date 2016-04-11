@@ -74,7 +74,7 @@ MACD_SIG = floor(MACD_SHORT / 1.5);
     trends = zeros(1,length(actuals));
     inaccuracy = 0;
     for i = [1:length(actuals)]
-      trends(i) = (aroon_predictions(end) + obv_predictions(end) + stoch_predictions(end));
+      trends(i) = (aroon_predictions(i) + obv_predictions(i) + stoch_predictions(i));
       if (trends(i) > 2 && actuals(i) == -1) || (trends(i) < -2 && actuals(i) == 1)
         inaccuracy = inaccuracy + 1;
       end
@@ -83,7 +83,7 @@ MACD_SIG = floor(MACD_SHORT / 1.5);
     trigger = RSI_predictions(end) + macd_predictions(end);
     if trend > 2 && trigger >= 1
       suggestion = 1;
-    elseif trend < -2 && trigger <= -1
+    elseif trend < -1 || trigger <= -1
       suggestion = -1;
     else
       suggestion = 0;
