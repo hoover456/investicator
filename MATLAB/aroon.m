@@ -13,11 +13,11 @@ parse(p,data,varargin{:});
 data = p.Results.data;
 l = p.Results.length;
 
-% up = zeros(length(data));
-% down = zeros(length(data));
+up = zeros(length(data));
+down = zeros(length(data));
 
 % Calculate up, down, and occilator from data
-for i = [l+1:length(data)]
+for i = l+1:length(data)
   k = find(data(i-l:i) == max(data(i-l:i)));
   k = k(1);
   up(i) = (l - k) / l * 100;
@@ -28,7 +28,7 @@ for i = [l+1:length(data)]
 end
 
 predictions = zeros(1,length(occilator));
-for i = [1:length(occilator)]
+for i = 1:length(occilator)
   if occilator(i) >= PREDICT_UP
     predictions(i) = 1;
   elseif occilator(i) <= PREDICT_DOWN

@@ -13,7 +13,8 @@ function [K, D, predictions] = stoch(close, varargin)
   len = p.Results.len;
 
 % CALCULATE OCCILATOR AND SIGNAL LINE
-  for i = [len+1:length(close)]
+    K = zeros(1,length(close));
+  for i = (len+1:length(close))
     K(i) = (close(i) - min(close(i-len:i)))/(max(close(i-len:i) - min(close(i-len:i)))) * 100;
   end
   K = tsmovavg(K, 's', 3);
@@ -21,7 +22,7 @@ function [K, D, predictions] = stoch(close, varargin)
 
 % MAKE PREDICTIONS BASED ON INDICATOR
   predictions = zeros(1,length(K));
-  for i = [len:length(K)]
+  for i = (len:length(K))
     if K(i) < 20
       if K(i) > D(i)
         predictions(i) = 1;

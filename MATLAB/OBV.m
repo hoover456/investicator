@@ -2,7 +2,7 @@ function [obv, predictions] = OBV(close, volume)
 
   % CALCULATION
   obv = zeros(1, length(close));
-  for i = [2:length(volume)]
+  for i = (2:length(volume))
     if close(i) > close(i-1)
       obv(i) = obv(i-1) + volume(i);
     elseif close(i) < close(i-1)
@@ -14,11 +14,11 @@ function [obv, predictions] = OBV(close, volume)
 
   % PREDICTIONS
   predictions = zeros(1,length(obv));
-  for i = [3:length(obv)]
+  for i = (3:length(obv))
     if obv(i) > obv (i-2)
       predictions(i) = 1;
     elseif obv(i) < obv(i-2)
-      predictions(i) - -1;
+      predictions(i) = -1;
     end
   end
 end

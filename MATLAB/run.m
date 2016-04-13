@@ -1,11 +1,11 @@
 SIMULATION_LENGTH = 365;
-list = input('File Name: ')
+list = input('File Name: ');
 symbols = dataread('file', list, '%s', 'delimiter', '\n');
 fid = fopen('suggestions.csv', 'wt');
 header = {'Symbol' 'Suggestion' 'Yesterdays Change' '30 Day Change' '90 Day Change' 'predictions_accuracy'};
 fprintf(fid, '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s', header{:});
 fclose(fid);
-dlmwrite('suggestions.csv',['_'], '-append');
+dlmwrite('suggestions.csv','_', '-append');
 tic;
 step = 0;
 steps = length(symbols);
@@ -13,9 +13,9 @@ h = waitbar(step/steps, 'Beginning');
 fid2 = fopen('accuracies.csv', 'wt');
 fprintf(fid2, '%s', 'symbol, RSI_accuracy, aroon_accuracy, macd_accuracy, obv_accuracy, stoch_accuracy, mean_accuracy, predictions_accuracy,');
 fclose(fid2);
-dlmwrite('accuracies.csv',['_'], '-append');
+dlmwrite('accuracies.csv','_', '-append');
 try
-  for r = [1:length(symbols)]
+  for r = 1:length(symbols)
     step = r;
     timePerStep = toc/step;
     waitbar(step/steps, h, strcat(symbols{r},' Elapsed: ', num2str(toc/60,'%.2f'), ' Mins ', ' Remaining: ', num2str((timePerStep * (steps - step))/60, '%.2f'), ' Mins'));

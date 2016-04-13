@@ -9,18 +9,18 @@ addOptional(p, 'AROON_LENGTH', 20);
 addOptional(p, 'MACD_LONG', 26);
 
 p.parse(symbol, close, volume, SIMULATION_LENGTH, varargin{:});
-RSI_LENGTH = p.Results.RSI_LENGTH;
-AROON_LENGTH = p.Results.AROON_LENGTH;
-MACD_LONG = p.Results.MACD_LONG;
-MACD_SHORT = floor(MACD_LONG / 1.8);
-MACD_SIG = floor(MACD_SHORT / 1.5);
+%RSI_LENGTH = p.Results.RSI_LENGTH;
+%AROON_LENGTH = p.Results.AROON_LENGTH;
+%MACD_LONG = p.Results.MACD_LONG;
+%MACD_SHORT = floor(MACD_LONG / 1.8);
+%MACD_SIG = floor(MACD_SHORT / 1.5);
   if close(end) == 0
     suggestion = -2;
   else
 
     actuals = zeros(1,SIMULATION_LENGTH);
     % lens = floor(SIMULATION_LENGTH/40);
-    for i = [1:SIMULATION_LENGTH-10]
+    for i = 1:SIMULATION_LENGTH-10
       if close(i+10) > close(i)
         actuals(i) = 1;
       elseif close(i+10) < close(i)
@@ -65,15 +65,15 @@ MACD_SIG = floor(MACD_SHORT / 1.5);
     mOpt = 26;
     aOpt = 20;
 
-    [null, RSI_predictions] = RSI(close, rOpt);
-    [null, null, null, aroon_predictions] = aroon(close, aOpt);
-    [null, null, macd_predictions] = MACD(close, mOpt, floor(mOpt / 1.8), floor(floor(mOpt / 1.8) / 1.5));
-    [null, obv_predictions] = OBV(close, volume);
-    [null, null, stoch_predictions] = stoch(close);
+    [~, RSI_predictions] = RSI(close, rOpt);
+    [~, ~, ~, aroon_predictions] = aroon(close, aOpt);
+    [~, ~, macd_predictions] = MACD(close, mOpt, floor(mOpt / 1.8), floor(floor(mOpt / 1.8) / 1.5));
+    [~, obv_predictions] = OBV(close, volume);
+    [~, ~, stoch_predictions] = stoch(close);
     trend = (aroon_predictions(end) + obv_predictions(end) + stoch_predictions(end));
     trends = zeros(1,length(actuals));
     inaccuracy = 0;
-    for i = [1:length(actuals)]
+    for i = 1:length(actuals)
       trends(i) = (aroon_predictions(i) + obv_predictions(i) + stoch_predictions(i));
       if (trends(i) > 2 && actuals(i) == -1) || (trends(i) < -2 && actuals(i) == 1)
         inaccuracy = inaccuracy + 1;
