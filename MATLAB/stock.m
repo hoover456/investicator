@@ -1,19 +1,19 @@
 classdef stock
   properties
     % DATA
-    symbol
+    symbol = 0
     closes
     adjCloses
     volumes
-    
+
     % DECICION MAKERS
     rsi
     macd
     aroon
     obv
-    stock
+    stoch
     sma200_50
-    decicionSum
+    decisionSum
 
 
     % Portfolio info
@@ -27,6 +27,9 @@ classdef stock
     end
     function price = getTodaysPrice(stock, dayIndex)
       price = stock.closes(dayIndex);
+    end
+    function sum = getDecisionSum(stock, dayIndex)
+      sum = stock.decisionSum(dayIndex);
     end
   end
 end

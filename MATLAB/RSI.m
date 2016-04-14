@@ -36,7 +36,7 @@ function [RSI, predictions] = RSI(close, varargin)
   end
 
   predictions = zeros(1,length(RSI));
-  for i  = (len+1:length(RSI))
+  parfor i  = (len+1:length(RSI))
     if RSI(i) <= OVERSOLD
       predictions(i) = 1;
     elseif RSI(i) >= OVERBOUGHT

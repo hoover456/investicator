@@ -23,7 +23,7 @@ macd(isnan(macd))=0;
 signal = tsmovavg(macd, 'e', SIGNAL);
 
 predictions = zeros(1,length(macd));
-for i = (1:length(macd))
+parfor i = (1:length(macd))
   if macd(i) > signal(i) && macd(i-1) < signal(i-1)
     predictions(i) = 1;
   elseif macd(i) < signal(i) && macd(i-1) > signal(i-1)

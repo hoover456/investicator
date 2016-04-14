@@ -6,14 +6,19 @@ function backtest(listName)
   % Get 2 years data for each symbol
   steps = length(symbols);
   h = waitbar(0/steps, 'GETTING DATA');
-  market = zeros(length(symbols),1);
+  % market = zeros(length(symbols),1);
   for i = 1:steps
     waitbar(i/steps, h, strcat(num2str(i), '/', num2str(steps)));
+    market(i) = stock;
     if exist(strcat('Data/',symbols{i}, '.csv'), 'file') == 2
       data = dlmread(strcat('Data/',symbols{i}, '.csv'));
       close = data(1,:);
       volume = data(2,:);
       adjClose = data(3,:);
+      [hi, wid] = size(data);
+      if hi == 4
+        market(i).decisionSum = data(4,:);
+      end
     else
       data = webread(strcat('http://real-chart.finance.yahoo.com/table.csv?s=',symbols{i}));
       if height(data) >= 730
@@ -29,15 +34,30 @@ function backtest(listName)
       fclose(fid);
       dlmwrite(strcat('Data/',symbols{i},'.csv'), [close; volume; adjClose]);
     end
-    market(i) = stock;
     market(i).symbol = symbols{i};
-    market(i).closes = close;
+    % market(i).closes = close;
     market(i).adjCloses = adjClose;
+    market(i).closes = adjClose;
     market(i).volumes = volume;
+
+    if length(market(i).decisionSum) == 0
+      rOpt = 14;
+      mOpt = 26;
+      aOpt = 20;
+
+      [~, market(i).rsi] = RSI(adjClose, rOpt);
+      [~, ~, ~, market(i).aroon] = aroon(adjClose, aOpt);
+      [~, ~, market(i).macd] = MACD(adjClose, mOpt, floor(mOpt / 1.8), floor(floor(mOpt / 1.8) / 1.5));
+      [~, market(i).obv] = OBV(adjClose, volume);
+      [~, ~, market(i).stoch] = stoch(adjClose);
+      [~, ~, market(i).sma200_50] = SMA(adjClose);
+      market(i).decisionSum =  market(i).rsi + market(i).aroon + market(i).macd + market(i).obv + market(i).stoch + market(i).sma200_50;
+      dlmwrite(strcat('Data/', market(i).symbol, '.csv'), market(i).decisionSum, '-append');
+    end
   end
-  i = 1;
+i = 1;
 while i < length(market)
-  if ISEMPTY(market(i).symbol) == 0
+  if market(i).symbol == 0
     market = [market(1:i-1) market(i+1:end)];
     i = i - 1;
   end
@@ -48,51 +68,57 @@ funds = 100000;
 net = funds;
 % portfolio = [stock];
 
-% n = 365;
+today= 365;
 %r = length(market);
 steps = 365;
-% h = waitbar(n-365/steps, 'SIMULATING');
-for n = 365:730
-  waitbar(n-364/steps,h, n-364);
-  for i = 1:length(market)-1
-    [market(i).suggestion, market(i).inaccuracy] = main(market(i).symbol, market(i).adjCloses(n-364:n), market(i).volumes(n-364:n), 365);
-  end
+delete(h);
+h = waitbar(today-365/steps, 'SIMULATING');
+for today = 365:730
+  waitbar((today-364)/steps,h, today-364);
 
-  for j = 1:length(market)
-      if (market(j).sharesOwned > 0 && market(j).suggestion == -1) || market(i).purchasePrice > 0 && (market(i).closes(n) / market(i).purchasePrice) >= 1.03
-        %|| (market(j).sharesOwned > 0 && abs(market(j).closes(n) - market(j).purchasePrice) / market(j).purchasePrice >=0.1)
-        fprintf('SELLING %.0f SHARES OF %s FOR $%.2f PER SHARE\n', market(j).sharesOwned, market(j).symbol, market(j).closes(n))
-        funds = funds + market(j).sell(n);
-        market(j).sharesOwned = 0;
-        % disp(market(j).sharesOwned)
-        net = funds;
-        for p = 1:length(market)
-          net = net + market(p).sharesOwned * market(p).closes(n);
-        end
-        % market(j).sharesOwned
+  for index = 1:length(market)
+    % fprintf('%s, %.0f\n ', market(index).symbol, market(index).sharesOwned)
+      if (market(index).sharesOwned > 0 && market(index).decisionSum(today) <= -3) || (market(index).sharesOwned > 0 && (market(index).closes(today) / market(index).purchasePrice) >= 1.1)
+        %|| (market(index).sharesOwned > 0 && abs(market(index).closes(today) - market(index).purchasePrice) / market(index).purchasePrice >=0.1)
+        % fprintf('SELLING %.0f SHARES OF %s FOR $%.2f PER SHARE FOR A RETURN OF $%.2f\n', market(index).sharesOwned, market(index).symbol, market(index).closes(today), market(index).sharesOwned*market(index).closes(today) - market(index).sharesOwned*market(index).purchasePrice)
+        funds = funds + market(index).sell(today);
+        market(index).sharesOwned = 0;
+        % fprintf('%s, %.0f', market(index).symbol, market(index).sharesOwned)
+        % net = funds;
+        % for index = 1:length(market)
+        %   % fprintf('%d %.0f\n', p, market(i).sharesOwned)
+        %   net = net + (market(index).sharesOwned * market(index).closes(today));
+        % end
+        % market(index).sharesOwned
       end
+      todaysDecision(index) = market(index).decisionSum(today);
   end
-  [~, indexes] = sort([market.inaccuracy]);
-  
-  %{
+  [~, indexes] = sort(todaysDecision, 'descend');
+
   for e = 1:length(market)
     temp(e) = market(indexes(e));
+    %fprintf('%s %.0f\n', temp(e).symbol, temp(e).decisionSum(today));
   end
-    %}
-  temp = market(indexes);
+
+  %temp = market(indexes);
   market = temp;
 
   for i = 1:length(market)
-    if funds > net / 5
-      if market(i).suggestion == 1 && market(i).sharesOwned == 0
-        market(i).purchasePrice = market(i).closes(n);
-        market(i).sharesOwned = market(i).sharesOwned + floor((funds / 5) / market(i).purchasePrice);
-        fprintf('BUYING %.0f SHARES OF %s AT $%5.2f PER SHARE\n', (floor((funds / 5) / market(i).purchasePrice)), market(i).symbol, market(i).purchasePrice)
-        funds = funds - (floor((funds / 5) / market(i).purchasePrice)) * market(i).purchasePrice;
+    if net / 10 < funds
+      spendingCash = net / 10;
+    else
+      spendingCash = funds;
+    end
+    if floor(spendingCash / market(i).closes(today)) > 25
+      if market(i).decisionSum(today) >= 4 && market(i).sharesOwned == 0
+        market(i).purchasePrice = market(i).closes(today);
+        market(i).sharesOwned = market(i).sharesOwned + floor(spendingCash / market(i).purchasePrice);
+        % fprintf('BUYING %.0f SHARES OF %s AT $%5.2f PER SHARE\n', (floor(spendingCash / market(i).purchasePrice)), market(i).symbol, market(i).purchasePrice)
+        funds = funds - (floor(spendingCash / market(i).purchasePrice)) * market(i).purchasePrice;
         net = funds;
         for p = 1:length(market)
           % fprintf('%d %.0f\n', p, market(i).sharesOwned)
-          net = net + (market(p).sharesOwned * market(p).closes(n));
+          net = net + (market(p).sharesOwned * market(p).closes(today));
         end
       end
     end
@@ -101,9 +127,9 @@ for n = 365:730
   % BUY UNTIL LESS THAN 1/5 of portfolio is cash
   % disp([market.sharesOwned])
   net = funds;
-  for p = 1:length(market)
+  for index = 1:length(market)
     % fprintf('%d %.0f\n', p, market(i).sharesOwned)
-    net = net + (market(p).sharesOwned * market(p).closes(n));
+    net = net + (market(index).sharesOwned * market(index).closes(today));
   end
-  fprintf('%.0f $%5.2f $%5.2f\n', n, funds, net);
 end
+fprintf('%.0f $%10.2f $%10.2f\n', today-365, funds, net);

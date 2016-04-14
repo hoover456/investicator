@@ -22,7 +22,7 @@ function [K, D, predictions] = stoch(close, varargin)
 
 % MAKE PREDICTIONS BASED ON INDICATOR
   predictions = zeros(1,length(K));
-  for i = (len:length(K))
+  parfor i = (len:length(K))
     if K(i) < 20
       if K(i) > D(i)
         predictions(i) = 1;
