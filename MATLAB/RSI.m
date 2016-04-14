@@ -1,7 +1,7 @@
 function [RSI, predictions] = RSI(close, varargin)
 
-  OVERBOUGHT = 70;
-  OVERSOLD = 30;
+  OVERBOUGHT = 60;
+  OVERSOLD = 40;
 
   p = inputParser;
   addRequired(p, 'close');

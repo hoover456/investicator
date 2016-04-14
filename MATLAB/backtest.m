@@ -4,7 +4,7 @@ function backtest(listName)
   symbols = dataread('file', listName, '%s', 'delimiter', '\n'); % Read in list of symbols
 
   % Get 2 years data for each symbol
-  steps = length(symbols);
+  steps = 200;
   h = waitbar(0/steps, 'GETTING DATA');
   % market = zeros(length(symbols),1);
   for i = 1:steps
