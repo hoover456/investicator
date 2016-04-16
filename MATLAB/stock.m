@@ -19,6 +19,8 @@ classdef stock
     % Portfolio info
     sharesOwned = 0
     purchasePrice = 0
+    sharesShort = 0;
+    shortPrice = 0;
   end
   methods
     function revenue = sell(stock, dayIndex)

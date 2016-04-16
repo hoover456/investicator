@@ -1,8 +1,8 @@
 function [up, down, occilator, predictions] = aroon(data, varargin)
 
 % CONSTANTS
-PREDICT_UP = 50; % occilator value above which prediction is price increase
-PREDICT_DOWN = -50; % occilator value above whihc prediction is price decrease
+PREDICT_UP = 20; % occilator value above which prediction is price increase
+PREDICT_DOWN = -20; % occilator value below which prediction is price decrease
 DEFAULT_LENGTH = 20;
 
 % INPUT PARSING
@@ -13,17 +13,15 @@ parse(p,data,varargin{:});
 data = p.Results.data;
 l = p.Results.length;
 
-up = zeros(length(data));
-down = zeros(length(data));
+up = zeros(1,length(data));
+down = zeros(1,length(data));
 
 % Calculate up, down, and occilator from data
 for i = l+1:length(data)
-  k = find(data(i-l:i) == max(data(i-l:i)));
-  k = k(1);
+  [~, k] = max(data(i-l:i));
   up(i) = (l - k) / l * 100;
-  k = find(data(i-l:i) == min(data(i-l:i)));
-  k = k(1);
-  down(i) = (l - k) / l * 100;
+  [~, j] = min(data(i-l:i));
+  down(i) = (l - j) / l * 100;
   occilator = up - down;
 end
 

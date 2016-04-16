@@ -14,7 +14,7 @@ function [obv, predictions] = OBV(close, volume)
 
   % PREDICTIONS
   predictions = zeros(1,length(obv));
-  for i = (6:length(obv))
+  for i = (11:length(obv))
     if obv(i) > obv (i-5)
       predictions(i) = 1;
     elseif obv(i) < obv(i-5)

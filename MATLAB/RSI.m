@@ -7,7 +7,7 @@ function [RSI, predictions] = RSI(close, varargin)
   addRequired(p, 'close');
   addOptional(p, 'length', 14);
   parse(p,close,varargin{:});
-  close = p.Results.close;
+  % close = p.Results.close;
   len = p.Results.length;
   change = zeros(1,length(close));
   for i = (2:length(close))

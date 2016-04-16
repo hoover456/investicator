@@ -17,7 +17,7 @@ function [K, D, predictions] = stoch(close, varargin)
   for i = (len+1:length(close))
     K(i) = (close(i) - min(close(i-len:i)))/(max(close(i-len:i) - min(close(i-len:i)))) * 100;
   end
-  K = tsmovavg(K, 's', 3);
+  % K = tsmovavg(K, 's', 3);
   D = tsmovavg(K, 's', 3);
 
 % MAKE PREDICTIONS BASED ON INDICATOR
